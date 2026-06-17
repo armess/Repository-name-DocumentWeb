@@ -1,0 +1,199 @@
+@page "/documents"
+@rendermode InteractiveServer
+@using DocumentWeb.Helpers
+@using DocumentWeb.Models
+@using DocumentWeb.Services
+@inject IJSRuntime JS
+@inject DocumentService DocumentService
+
+<h3>รายการเอกสาร</h3>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+
+        <div class="d-flex gap-2 mb-3">
+            <button class="btn btn-success" @onclick="ClearForm">
+                เพิ่ม
+            </button>
+
+            <button class="btn btn-primary" @onclick="SaveDocument">
+                บันทึก
+            </button>
+
+            <button class="btn btn-warning">
+                แก้ไข
+            </button>
+
+            <button class="btn btn-danger">
+                ลบ
+            </button>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <label>เลขที่เอกสาร</label>
+                <input class="form-control" @bind="documentNo" />
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label>ชื่อลูกค้า</label>
+                <input class="form-control" @bind="customerName" />
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label>หมายเหตุ</label>
+                <input class="form-control" @bind="remark" />
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label>เบอร์โทร</label>
+                <input class="form-control" />
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label>Email</label>
+                <input class="form-control" />
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label>ที่อยู่</label>
+                <input class="form-control" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-info mt-3">
+                @message
+            </div>
+        }
+
+    </div>
+</div>
+
+@if (documents == null)
+{
+    <p>Loading...</p>
+}
+else if (documents.Count == 0)
+{
+    <p>ไม่พบข้อมูล</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>เลขที่เอกสาร</th>
+                    <th>ลูกค้า</th>
+                    <th>หมายเหตุ</th>
+                    <th>วันที่บันทึกข้อมูล</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in documents)
+                {
+                    <tr @onclick="() => SelectDocument(item)"
+                        style="cursor:pointer; background-color:@(selectedDocument?.Id == item.Id ? "#d0ebff" : "")">
+                        <td>@item.Id</td>
+                        <td>@item.DocumentNo</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.Remark</td>
+                        <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    PaginationState pager = new();
+
+    List<DocumentModel>? documents;
+    DocumentModel? selectedDocument;
+
+    string documentNo = "";
+    string customerName = "";
+    string remark = "";
+    string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocuments();
+    }
+
+    async Task LoadDocuments()
+    {
+        documents = await DocumentService.GetDocumentsAsync(
+            pager.Offset,
+            pager.PageSize);
+    }
+
+    void SelectDocument(DocumentModel doc)
+    {
+        selectedDocument = doc;
+
+        documentNo = doc.DocumentNo;
+        customerName = doc.CustomerName;
+        remark = doc.Remark;
+    }
+
+    void ClearForm()
+    {
+        selectedDocument = null;
+
+        documentNo = "";
+        customerName = "";
+        remark = "";
+        message = "";
+    }
+
+    async Task SaveDocument()
+    {
+        try
+        {
+            var doc = new DocumentModel
+            {
+                DocumentNo = documentNo,
+                CustomerName = customerName,
+                Remark = remark,
+                CreatedAt = DateTime.Now
+            };
+
+            await DocumentService.AddDocumentAsync(doc);
+
+            documentNo = "";
+            customerName = "";
+            remark = "";
+            selectedDocument = null;
+
+            pager.Reset();
+            await LoadDocuments();
+
+            message = "บันทึกข้อมูลสำเร็จ";
+
+            await JS.InvokeVoidAsync("alert", "บันทึกข้อมูลสำเร็จ");
+        }
+        catch (Exception ex)
+        {
+            message = "Error: " + ex.Message;
+            await JS.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+    async Task NextPage()
+    {
+        pager.Next();
+        await LoadDocuments();
+    }
+
+    async Task PrevPage()
+    {
+        pager.Prev();
+        await LoadDocuments();
+    }
+}
