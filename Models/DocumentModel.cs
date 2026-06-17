@@ -1,4 +1,4 @@
-namespace DocumentWeb.Models;
+namespace SMDData.Models;
 
 public class DocumentModel
 {

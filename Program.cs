@@ -1,5 +1,5 @@
-using DocumentWeb.Components;
-using DocumentWeb.Services;
+using SMDData.Components;
+using SMDData.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

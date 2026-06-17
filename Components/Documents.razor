@@ -1,8 +1,9 @@
 @page "/documents"
 @rendermode InteractiveServer
-@using DocumentWeb.Helpers
-@using DocumentWeb.Models
-@using DocumentWeb.Services
+<PageTitle>SMD DATA</PageTitle>
+@using SMDData.Helpers
+@using SMDData.Models
+@using SMDData.Services
 @inject IJSRuntime JS
 @inject DocumentService DocumentService
 
@@ -27,6 +28,11 @@
             <button class="btn btn-danger">
                 ลบ
             </button>
+            
+             <button class="btn btn-danger">
+                ทดสอบเฉยๆ
+            </button>
+
         </div>
 
         <div class="row g-3">

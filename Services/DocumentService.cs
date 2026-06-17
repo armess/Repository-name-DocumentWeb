@@ -1,8 +1,8 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
-using DocumentWeb.Models;
+using SMDData.Models;
 
-namespace DocumentWeb.Services;
+namespace SMDData.Services;
 
 public class DocumentService
 {

@@ -1,4 +1,4 @@
-namespace DocumentWeb.Helpers;
+namespace SMDData.Helpers;
 
 public class PaginationState
 {
